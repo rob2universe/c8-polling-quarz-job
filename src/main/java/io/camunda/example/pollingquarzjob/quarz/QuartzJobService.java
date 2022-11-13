@@ -9,7 +9,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -34,13 +33,15 @@ public class QuartzJobService {
 
     }
   */
-  public void scheduleNewJob(JobInfo jobInfo, Map dataMap) {
+  public void scheduleNewJob(JobInfo jobInfo, JobDataMap dataMap, boolean isCronJob) {
     try {
       Scheduler scheduler = schedulerFactory.getScheduler();
 
       JobDetail jobDetail = JobBuilder
           .newJob((Class<? extends QuartzJobBean>) Class.forName(jobInfo.getJobClass()))
-          .withIdentity(jobInfo.getJobName(), jobInfo.getJobGroup()).build();
+          .withIdentity(jobInfo.getJobName(), jobInfo.getJobGroup())
+          .usingJobData(dataMap)
+          .build();
       if (!scheduler.checkExists(jobDetail.getKey())) {
 
         jobDetail = scheduleCreator.createJobDetail(
@@ -48,16 +49,16 @@ public class QuartzJobService {
             jobInfo.getJobName(), jobInfo.getJobGroup());
 
         Trigger trigger;
-        if (null != jobInfo.getCronExpression()) {
+        if (isCronJob) {
           trigger = scheduleCreator.createCronTrigger(jobInfo.getJobName(), new Date(),
-              jobInfo.getCronExpression(), SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+              jobInfo.getCronExpression(), dataMap, SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
         } else {
           trigger = scheduleCreator.createSimpleTrigger(jobInfo.getJobName(), new Date(),
-              jobInfo.getRepeatTime(), SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+              jobInfo.getRepeatTime(), dataMap, SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
         }
         scheduler.scheduleJob(jobDetail, trigger);
 
-        log.info("Job schduled wit JobInfo {}", jobInfo);
+        log.info("Job scheduled wit JobInfo {}", jobInfo);
       } else {
         log.error("Job already exists: {}", jobInfo);
       }

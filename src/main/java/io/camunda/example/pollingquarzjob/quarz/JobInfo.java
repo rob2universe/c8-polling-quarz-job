@@ -1,12 +1,9 @@
 package io.camunda.example.pollingquarzjob.quarz;
 
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 
-@Builder
-@Getter
+@Data
 public class JobInfo {
 
   private String jobId;
@@ -16,5 +13,6 @@ public class JobInfo {
   private String jobClass;
   private String cronExpression;
   private String description;
+  //TODO change to repeatInterval
   private Long repeatTime;
 }

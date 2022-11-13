@@ -35,22 +35,24 @@ public class JobScheduleCreator {
     return factoryBean.getObject();
   }
 
-  public SimpleTrigger createSimpleTrigger(String triggerName, Date startTime, Long repeatTime, int misFireInstruction) {
+  public SimpleTrigger createSimpleTrigger(String triggerName, Date startTime, Long repeatInterval, JobDataMap dataMap, int misFireInstruction) {
     SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
     factoryBean.setName(triggerName);
     factoryBean.setStartTime(startTime);
-    factoryBean.setRepeatInterval(repeatTime);
+    factoryBean.setRepeatInterval(repeatInterval);
     factoryBean.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
     factoryBean.setMisfireInstruction(misFireInstruction);
+    factoryBean.setJobDataMap(dataMap);
     factoryBean.afterPropertiesSet();
     return factoryBean.getObject();
   }
 
-  public CronTrigger createCronTrigger(String triggerName, Date startTime, String cronExpression, int misFireInstruction) {
+  public CronTrigger createCronTrigger(String triggerName, Date startTime, String cronExpression, JobDataMap dataMap, int misFireInstruction) {
     CronTriggerFactoryBean factoryBean = new CronTriggerFactoryBean();
     factoryBean.setName(triggerName);
     factoryBean.setStartTime(startTime);
     factoryBean.setCronExpression(cronExpression);
+    factoryBean.setJobDataMap(dataMap);
     factoryBean.setMisfireInstruction(misFireInstruction);
     try {
       factoryBean.afterPropertiesSet();

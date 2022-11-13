@@ -7,6 +7,7 @@ import io.camunda.example.pollingquarzjob.quarz.JobInfo;
 import io.camunda.example.pollingquarzjob.quarz.QuartzJobService;
 import io.camunda.example.pollingquarzjob.quarz.jobs.WaitForResultJob;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -22,35 +23,22 @@ public class QuartzOutboundConnectorFunction implements OutboundConnectorFunctio
 
   @Override
   public Object execute(OutboundConnectorContext context) throws Exception {
-    var connectorRequest = context.getVariablesAsType(QuartzOutboundConnectorRequest.class);
+    var request = context.getVariablesAsType(QuartzOutboundConnectorRequest.class);
 
     // TODO: add back with 0.3.0-alpha5
     // context.validate(connectorRequest);
-    context.replaceSecrets(connectorRequest);
-
+    context.replaceSecrets(request);
     // TODO: implement connector logic
-    log.info("Executing Quartz connector with request {}", connectorRequest);
+    log.info("Executing Quartz connector with request {}", request);
 
-    // TODO make parameters
-    String jobName = "camundaJob";
-    String jobGroup = "camundaJobGroup";
-
-    JobInfo jobInfo = JobInfo.builder()
-        .jobClass(WaitForResultJob.class.getName())
-        .jobGroup(jobGroup)
-        .jobName(jobName)
-        .repeatTime(10000L)
-        .description("job with message" + connectorRequest.getMessage())
-        .build();
-
-    //TODO data map, e.g. message
-    quartzJobService.scheduleNewJob(jobInfo, new HashMap());
+    JobInfo jobInfo = request.getJobInfo();
+    JobDataMap jobDataMap = new JobDataMap(request.getDataMap());
+    log.debug("Scheduling Job: JobInfo {} JobDataMap {}", jobInfo, jobDataMap.getWrappedMap());
+    quartzJobService.scheduleNewJob(jobInfo, jobDataMap, false);
 
     var result = new QuartzOutboundConnectorResult();
-
-    log.info("Message  {}", connectorRequest.getMessage());
-
     result.setJobId("100");
+
     return result;
   }
 }
