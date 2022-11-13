@@ -1,6 +1,6 @@
 package io.camunda.example.pollingquarzjob.quarz;
 
-import io.camunda.example.pollingquarzjob.quarz.jobs.JobScheduleCreator;
+import io.camunda.example.pollingquarzjob.quarz.scheduler.JobScheduleCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.context.ApplicationContext;
@@ -8,53 +8,46 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
 @Slf4j
 @Component
 public class QuartzJobService {
+  public static final String TRIGGER_GROUP = "CamundaTriggers";
   private ApplicationContext applicationContext;
   private SchedulerFactoryBean schedulerFactory;
-  private JobScheduleCreator scheduleCreator;
 
-  public QuartzJobService(ApplicationContext applicationContext, SchedulerFactoryBean schedulerFactory, JobScheduleCreator scheduleCreator) {
+  public QuartzJobService(ApplicationContext applicationContext, SchedulerFactoryBean schedulerFactory) {
     this.applicationContext = applicationContext;
     this.schedulerFactory = schedulerFactory;
-    this.scheduleCreator = scheduleCreator;
   }
 
-  /* public void startJob(String jobName, String jobGroup, Map dataMap) throws SchedulerException {
-
-      JobDataMap jobDataMap = new JobDataMap();
-      jobDataMap.put("message", dataMap.get("message"));
-
-      schedulerFactory.getScheduler().triggerJob(new JobKey(jobName, jobGroup), jobDataMap);
-      log.info(" job {} scheduled in job group {} with jobDataMap {}", jobName, jobGroup, jobDataMap);
-
-    }
-  */
-  public void scheduleNewJob(JobInfo jobInfo, JobDataMap dataMap, boolean isCronJob) {
+  public JobDetail scheduleNewJob(JobInfo jobInfo, JobDataMap dataMap, boolean isCronJob) {
+    JobDetail jobDetail=null;
     try {
       Scheduler scheduler = schedulerFactory.getScheduler();
 
-      JobDetail jobDetail = JobBuilder
-          .newJob((Class<? extends QuartzJobBean>) Class.forName(jobInfo.getJobClass()))
+      Class<? extends QuartzJobBean> jobClass = (Class<? extends QuartzJobBean>) Class.forName(jobInfo.getJobClass());
+      jobDetail = JobBuilder
+          .newJob(jobClass)
           .withIdentity(jobInfo.getJobName(), jobInfo.getJobGroup())
           .usingJobData(dataMap)
           .build();
-      if (!scheduler.checkExists(jobDetail.getKey())) {
 
-        jobDetail = scheduleCreator.createJobDetail(
-            (Class<? extends QuartzJobBean>) Class.forName(jobInfo.getJobClass()), false, applicationContext,
+      if (!scheduler.checkExists(jobDetail.getKey())) {
+        jobDetail = JobScheduleCreator.createJobDetail(
+            jobClass, false, applicationContext,
             jobInfo.getJobName(), jobInfo.getJobGroup());
 
         Trigger trigger;
+        String triggerName = jobInfo.getJobName();
+
         if (isCronJob) {
-          trigger = scheduleCreator.createCronTrigger(jobInfo.getJobName(), new Date(),
-              jobInfo.getCronExpression(), dataMap, SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+          log.debug("Creating CronTrigger: {}", triggerName);
+          trigger = JobScheduleCreator.createCronTrigger(triggerName, TRIGGER_GROUP, jobInfo.getStartTime(),
+              jobInfo.getCronExpression(), dataMap, CronTrigger.MISFIRE_INSTRUCTION_FIRE_ONCE_NOW);
         } else {
-          trigger = scheduleCreator.createSimpleTrigger(jobInfo.getJobName(), new Date(),
-              jobInfo.getRepeatTime(), dataMap, SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
+          log.debug("Creating SimpleTrigger: {}", triggerName);
+          trigger = JobScheduleCreator.createSimpleTrigger(triggerName, TRIGGER_GROUP, jobInfo.getStartTime(),
+              jobInfo.getRepeatInterval(),jobInfo.getRepeatCount(), dataMap, SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
         }
         scheduler.scheduleJob(jobDetail, trigger);
 
@@ -67,5 +60,10 @@ public class QuartzJobService {
     } catch (SchedulerException e) {
       log.error(e.getMessage(), e);
     }
+    return jobDetail;
+  }
+
+  public boolean unscheduleJob(TriggerKey triggerKey) throws SchedulerException {
+    return schedulerFactory.getScheduler().unscheduleJob(triggerKey);
   }
 }

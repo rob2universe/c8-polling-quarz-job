@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob.quarz.jobs;
+package io.camunda.example.pollingquarzjob.quarz.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.CronTrigger;
@@ -16,10 +16,9 @@ import java.text.ParseException;
 import java.util.Date;
 
 @Slf4j
-@Component
 public class JobScheduleCreator {
 
-  public JobDetail createJobDetail(Class<? extends QuartzJobBean> jobClass, boolean isDurable,
+  public static JobDetail createJobDetail(Class<? extends QuartzJobBean> jobClass, boolean isDurable,
                              ApplicationContext context, String jobName, String jobGroup) {
     JobDetailFactoryBean factoryBean = new JobDetailFactoryBean();
     factoryBean.setJobClass(jobClass);
@@ -35,21 +34,23 @@ public class JobScheduleCreator {
     return factoryBean.getObject();
   }
 
-  public SimpleTrigger createSimpleTrigger(String triggerName, Date startTime, Long repeatInterval, JobDataMap dataMap, int misFireInstruction) {
+  public static SimpleTrigger createSimpleTrigger(String triggerName, String triggerGroup,Date startTime, Long repeatInterval,int repeatCount,JobDataMap dataMap, int misFireInstruction) {
     SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
     factoryBean.setName(triggerName);
+    factoryBean.setGroup(triggerGroup);
     factoryBean.setStartTime(startTime);
     factoryBean.setRepeatInterval(repeatInterval);
-    factoryBean.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
+    factoryBean.setRepeatCount(repeatCount);
     factoryBean.setMisfireInstruction(misFireInstruction);
     factoryBean.setJobDataMap(dataMap);
     factoryBean.afterPropertiesSet();
     return factoryBean.getObject();
   }
 
-  public CronTrigger createCronTrigger(String triggerName, Date startTime, String cronExpression, JobDataMap dataMap, int misFireInstruction) {
+  public static CronTrigger createCronTrigger(String triggerName, String triggerGroup, Date startTime, String cronExpression, JobDataMap dataMap, int misFireInstruction) {
     CronTriggerFactoryBean factoryBean = new CronTriggerFactoryBean();
     factoryBean.setName(triggerName);
+    factoryBean.setGroup(triggerGroup);
     factoryBean.setStartTime(startTime);
     factoryBean.setCronExpression(cronExpression);
     factoryBean.setJobDataMap(dataMap);

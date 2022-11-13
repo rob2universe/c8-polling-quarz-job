@@ -1,16 +1,15 @@
 package io.camunda.example.pollingquarzjob.quarz.jobs;
 
+import io.camunda.example.pollingquarzjob.quarz.QuartzJobService;
 import io.camunda.zeebe.spring.client.lifecycle.ZeebeClientLifecycle;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Map;
 
 @Slf4j
 @DisallowConcurrentExecution
@@ -19,29 +18,36 @@ public class WaitForResultJob extends QuartzJobBean {
   @Autowired
   ZeebeClientLifecycle client;
 
+  @Autowired
+  QuartzJobService jobService;
+
   @Override
-  protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+  protected void executeInternal(JobExecutionContext context) {
 
-    log.info("JobExecutionContext: {}", context);
-
-    //call REST service and wai for response
-    WebClient.ResponseSpec responseSpec = WebClient.create().get().uri("http://localhost:8080/status").retrieve();
-    String responseBody = responseSpec.bodyToMono(String.class).block();
-
-    log.info("Job received result {}", responseBody);
+    log.debug("Executing {} with context: {}", this.getClass().getName(), context);
 
     var dataMap = context.getMergedJobDataMap();
+    log.debug("Payload {}", dataMap.getString("payload"));
 
-    if(Boolean.parseBoolean(responseBody)){
+    WebClient.ResponseSpec responseSpec = WebClient.create().get().uri("http://localhost:8080/status").retrieve();
+    String responseBody = responseSpec.bodyToMono(String.class).block();
+    log.debug("Job received result {}", responseBody);
+
+    if (Boolean.parseBoolean(responseBody)) {
       String correlationKey = dataMap.getString("correlationKey");
       log.debug("Sending message with correlationKey {}", correlationKey);
       client.newPublishMessageCommand()
           .messageName("Msg_QuartzJobCompleted")
           .correlationKey(correlationKey)
           .send();
-      // TODO cancel job
-    }
-    else{
+
+      try {
+        log.info("Unscheduling Job with trigger key {}", context.getTrigger().getKey());
+        jobService.unscheduleJob(context.getTrigger().getKey());
+      } catch (SchedulerException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
       log.debug("Will check again at {}", context.getNextFireTime());
     }
   }

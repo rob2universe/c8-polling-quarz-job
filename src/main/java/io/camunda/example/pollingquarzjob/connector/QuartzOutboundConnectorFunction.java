@@ -8,8 +8,10 @@ import io.camunda.example.pollingquarzjob.quarz.QuartzJobService;
 import io.camunda.example.pollingquarzjob.quarz.jobs.WaitForResultJob;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
 import java.util.HashMap;
 
 @Slf4j
@@ -33,11 +35,12 @@ public class QuartzOutboundConnectorFunction implements OutboundConnectorFunctio
 
     JobInfo jobInfo = request.getJobInfo();
     JobDataMap jobDataMap = new JobDataMap(request.getDataMap());
-    log.debug("Scheduling Job: JobInfo {} JobDataMap {}", jobInfo, jobDataMap.getWrappedMap());
-    quartzJobService.scheduleNewJob(jobInfo, jobDataMap, false);
+    log.debug("Scheduling job with {} and {}", jobInfo, jobDataMap.getWrappedMap());
+    jobInfo.setCronExpression(null); // testing only. TODO: remove line
+    JobDetail jobDetail = quartzJobService.scheduleNewJob(jobInfo, jobDataMap, null!=jobInfo.getCronExpression());
 
     var result = new QuartzOutboundConnectorResult();
-    result.setJobId("100");
+    result.setJobKey(jobDetail.getKey());
 
     return result;
   }

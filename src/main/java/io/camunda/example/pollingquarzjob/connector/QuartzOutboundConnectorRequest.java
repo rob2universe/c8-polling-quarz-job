@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +21,6 @@ public class QuartzOutboundConnectorRequest {
   @NotNull
   private JobInfo jobInfo;
 
-  private HashMap dataMap;
+  private Map dataMap;
 
 }
