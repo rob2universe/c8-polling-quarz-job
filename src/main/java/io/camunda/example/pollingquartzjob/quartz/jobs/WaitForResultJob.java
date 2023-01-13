@@ -1,11 +1,10 @@
-package io.camunda.example.pollingquarzjob.quarz.jobs;
+package io.camunda.example.pollingquartzjob.quartz.jobs;
 
-import io.camunda.example.pollingquarzjob.quarz.QuartzJobService;
+import io.camunda.example.pollingquartzjob.quartz.QuartzJobService;
 import io.camunda.zeebe.spring.client.lifecycle.ZeebeClientLifecycle;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;

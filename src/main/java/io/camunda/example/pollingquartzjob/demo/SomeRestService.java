@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob.demo;
+package io.camunda.example.pollingquartzjob.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;

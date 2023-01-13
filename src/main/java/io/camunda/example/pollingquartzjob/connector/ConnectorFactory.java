@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob.connector;
+package io.camunda.example.pollingquartzjob.connector;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

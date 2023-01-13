@@ -1,6 +1,6 @@
-package io.camunda.example.pollingquarzjob.quarz;
+package io.camunda.example.pollingquartzjob.quartz;
 
-import io.camunda.example.pollingquarzjob.quarz.scheduler.JobScheduleCreator;
+import io.camunda.example.pollingquartzjob.quartz.scheduler.JobScheduleCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.context.ApplicationContext;

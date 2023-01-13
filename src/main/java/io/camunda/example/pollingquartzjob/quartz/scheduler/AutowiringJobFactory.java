@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob.quarz.scheduler;
+package io.camunda.example.pollingquartzjob.quartz.scheduler;
 
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;

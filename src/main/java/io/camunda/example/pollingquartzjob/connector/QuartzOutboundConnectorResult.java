@@ -1,9 +1,7 @@
-package io.camunda.example.pollingquarzjob.connector;
+package io.camunda.example.pollingquartzjob.connector;
 
 import lombok.Data;
 import org.quartz.JobKey;
-
-import java.util.Objects;
 
 @Data
 public class QuartzOutboundConnectorResult {

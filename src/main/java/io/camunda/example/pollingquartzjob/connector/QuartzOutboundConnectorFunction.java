@@ -1,10 +1,10 @@
-package io.camunda.example.pollingquarzjob.connector;
+package io.camunda.example.pollingquartzjob.connector;
 
 import io.camunda.connector.api.annotation.OutboundConnector;
 import io.camunda.connector.api.outbound.OutboundConnectorContext;
 import io.camunda.connector.api.outbound.OutboundConnectorFunction;
-import io.camunda.example.pollingquarzjob.quarz.JobInfo;
-import io.camunda.example.pollingquarzjob.quarz.QuartzJobService;
+import io.camunda.example.pollingquartzjob.quartz.JobInfo;
+import io.camunda.example.pollingquartzjob.quartz.QuartzJobService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;

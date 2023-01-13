@@ -1,7 +1,7 @@
-package io.camunda.example.pollingquarzjob.connector;
+package io.camunda.example.pollingquartzjob.connector;
 
 import io.camunda.connector.api.annotation.Secret;
-import io.camunda.example.pollingquarzjob.quarz.JobInfo;
+import io.camunda.example.pollingquartzjob.quartz.JobInfo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

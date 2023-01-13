@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob.connector;
+package io.camunda.example.pollingquartzjob.connector;
 
 import io.camunda.connector.api.annotation.Secret;
 import javax.validation.constraints.NotEmpty;

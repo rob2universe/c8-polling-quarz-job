@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob.quarz.scheduler;
+package io.camunda.example.pollingquartzjob.quartz.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.CronTrigger;
@@ -10,7 +10,6 @@ import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
-import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.Date;

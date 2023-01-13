@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob;
+package io.camunda.example.pollingquartzjob;
 
 import io.camunda.zeebe.spring.client.EnableZeebeClient;
 import org.springframework.boot.SpringApplication;

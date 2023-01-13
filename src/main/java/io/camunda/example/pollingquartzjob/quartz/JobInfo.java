@@ -1,4 +1,4 @@
-package io.camunda.example.pollingquarzjob.quarz;
+package io.camunda.example.pollingquartzjob.quartz;
 
 
 import lombok.Data;
